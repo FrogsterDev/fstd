@@ -3,15 +3,20 @@
 #include <type_traits>
 
 TEST(VectorTest, VectorInit) {
-  fstd::Vector<int> vec{10};
-  EXPECT_EQ(vec.size(), 10);
+  fstd::Vector<int> vec(10);
+  EXPECT_EQ(vec.capacity(), 10);
+  EXPECT_EQ(vec.size(), 0);
+
+  fstd::Vector<int> vec2(vec);
+  EXPECT_EQ(vec2.capacity(), 10);
+  EXPECT_EQ(vec2.size(), 0);
 }
 
 TEST(VectorTest, VectorAliasesInit) {
-  fstd::Vector8<int> vec8{10};
-  fstd::Vector16<int> vec16{10};
-  fstd::Vector32<int> vec32{10};
-  fstd::Vector64<int> vec64{10};
+  fstd::Vector8<int> vec8(10);
+  fstd::Vector16<int> vec16(10);
+  fstd::Vector32<int> vec32(10);
+  fstd::Vector64<int> vec64(10);
 
   // Yes I know it won't trigger failed test... but sizes need to be constexpr
   static_assert(std::is_same<ui8, decltype(vec8.size())>::value,
