@@ -12,7 +12,5 @@ target_link_libraries(fstd_tests
         GTest::gtest_main
 )
 
-add_test(
-    NAME fstd_tests
-    COMMAND fstd_tests
-) 
+include(GoogleTest)
+gtest_discover_tests(fstd_tests) 
