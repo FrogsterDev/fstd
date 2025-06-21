@@ -1,5 +1,4 @@
-#ifndef FSTD_BASE_H
-#define FSTD_BASE_H
+#pragma once
 
 /* Compiler Detection */
 #include <cstdint>
@@ -7,16 +6,16 @@
     #define COMPILER_MSVC 1
 #elif defined(__clang__)
     #define COMPILER_CLANG 1
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && !defined(__clang__)
     #define COMPILER_GCC 1
 #else
     #error "Unsupported compiler"
 #endif
 
 /* Os Detection */
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(_WIN64)
     #define OS_WINDOWS 1
-#elif defined(__gnu_linux__)
+#elif defined(__linux__)
     #define OS_LINUX 1
 #elif defined(__APPLE__) && defined(__MACH__)
     #define OS_MAC 1
@@ -25,13 +24,13 @@
 #endif
 
 /* Architecture Detection */
-#if defined(_M_AMD64) || defined(__amd64__) || defined(__x86_64__)
+#if defined(__amd64__) || defined(_M_X64)
     #define ARCH_X64 1
-#elif defined(_M_IX86) || defined(__i386__)
+#elif defined(__i386__) || defined(_M_IX86)
     #define ARCH_X86 1
-#elif defined(_M_ARM) || defined(__arm__) || defined(__arm)
+#elif defined(__arm__) || defined(_M_ARM)
     #define ARCH_ARM 1
-#elif defined(_M_ARM64) || defined(__aarch64__)
+#elif defined(__aarch64__) || defined(_M_ARM64)
     #define ARCH_ARM64 1
 #else
     #error "Unsupported architecture"
@@ -106,5 +105,3 @@ static ui8 max_ui8 = (ui8)0xff;
 static ui16 max_ui16 = (ui16)0xffff;
 static ui32 max_ui32 = (ui32)0xffffffff;
 static ui64 max_ui64 = (ui64)0xffffffffffffffffllu;
-
-#endif // FSTD_BASE_H
