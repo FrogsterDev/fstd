@@ -1,13 +1,77 @@
 #pragma once
 #include "../base/base.h"
 #include <cmath>
+#include <cstddef>
 #include <stdexcept>
 #include <utility>
 
 namespace fstd {
 
+struct random_access_iterator_tag {};
+
+template <typename Container> class GeneralIterator {
+public:
+  using iterator_category = fstd::random_access_iterator_tag;
+  using value_type = typename Container::vType;
+  using difference_type = std::ptrdiff_t;
+  using pointer = value_type *;
+  using reference = value_type &;
+
+  GeneralIterator(pointer ptr = nullptr) : m_ptr(ptr) {}
+
+  reference operator*() const { return *m_ptr; }
+
+  pointer operator->() const { return m_ptr; }
+
+  GeneralIterator &operator++() {
+    m_ptr++;
+    return *this;
+  }
+
+  GeneralIterator operator++(int) {
+    GeneralIterator tmp = *this;
+    ++(*this);
+    return tmp;
+  }
+
+  GeneralIterator &operator--() {
+    m_ptr--;
+    return *this;
+  }
+
+  GeneralIterator operator--(int) {
+    GeneralIterator tmp = *this;
+    --(*this);
+    return tmp;
+  }
+
+  difference_type operator-(const GeneralIterator &other) const {
+    return m_ptr - other.m_ptr;
+  }
+  GeneralIterator operator+(difference_type n) const {
+    return GeneralIterator(m_ptr + n);
+  }
+  GeneralIterator operator-(difference_type n) const {
+    return GeneralIterator(m_ptr - n);
+  }
+
+  bool operator==(const GeneralIterator &other) const {
+    return m_ptr == other.m_ptr;
+  }
+  bool operator!=(const GeneralIterator &other) const {
+    return !(*this == other);
+  }
+
+private:
+  pointer m_ptr;
+};
+
 template <typename ContainerType, typename SizeType = int> class Vector {
 public:
+  using vType = ContainerType;
+  using sizeType = SizeType;
+  using Iterator = GeneralIterator<Vector<ContainerType, SizeType>>;
+
   Vector(SizeType capacity)
       : m_Size(0), m_Capacity(capacity),
         m_Container(new ContainerType[capacity]) {}
@@ -50,7 +114,7 @@ public:
   }
 
   ContainerType &operator[](SizeType index) {
-    if (index >= this.m_Size) {
+    if (index >= this->m_Size) {
       throw std::out_of_range("Vector out_of_range!");
     }
     return this->m_Container[index];
@@ -72,9 +136,14 @@ public:
     if (this->m_Size >= this->m_Capacity) {
       grow();
     }
-    this->m_Container = ContainerType(std::forward<TypeList>(newElements)...);
+    this->m_Container[m_Size] =
+        ContainerType(std::forward<TypeList>(newElements)...);
     this->m_Size++;
   }
+
+  Iterator begin() { return Iterator(m_Container); }
+
+  Iterator end() { return Iterator(m_Container + m_Size); }
 
   ~Vector() {
     delete[] this->m_Container;
@@ -90,7 +159,7 @@ private:
         newCapacity * sizeof(ContainerType)));
 
     for (SizeType i = 0; i < m_Size; ++i) {
-      new (&newData[i]) ContainerType(std::move(m_Container));
+      new (&newData[i]) ContainerType(std::move(m_Container[i]));
       m_Container[i].~ContainerType();
     }
 
